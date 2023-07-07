@@ -31,6 +31,43 @@ const authSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  userType: {
+    type: String,
+    enum: ["parent", "child"],
+    required: true,
+  },
+ 
+  parentId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "auth",
+  },
+  isActive:{
+    type:Boolean,
+    default:false
+  },
+  DateOfBirth:{
+    type:Date,
+    required: function() {
+      return this.userType === 'child';
+    },
+  },
+  CourtSize:{
+    type:String,
+
+    enum:[
+      'Youth-Middle-High-School',
+      'Women-College',
+      'Mens-College',
+      'NBA'
+  ],
+  required: function() {
+    return this.userType === 'child';
+  },
+  },
+
+
+
+
 });
 
 const authModel = mongoose.model("auth", authSchema);

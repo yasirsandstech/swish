@@ -15,5 +15,16 @@ authRouter.post("/userLogin",userController.userLogin);
 
 authRouter.post("/updateProfile",auth,userController.updateProfile);
 
-
+//forget password router
 authRouter.post("/forgetPassword",userController.forgetPassword);
+
+//verify otp router
+authRouter.post("/verifyOtp",userController.verifyOtp);
+
+//reset password router
+authRouter.post("/resetPassword",auth,userController.resetPassword);
+
+
+//invitation child router
+
+authRouter.post("/inviteChild",auth,userController.inviteChild);

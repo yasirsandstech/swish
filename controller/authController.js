@@ -7,70 +7,53 @@ import { randomInt } from "crypto";
 import otpModel from '../model/otpModel.js'
 //user register
 
+
 export const userRegister = async (req, res) => {
   try {
-    const { fullName, email, password, mobileNumber } = req.body;
+    const { fullName, email, password, mobileNumber, userType, DateOfBirth, CourtSize, parentId } = req.body;
 
-    if (!fullName) {
-      return res.status(400).json({
-        success: false,
-        message: "full name not provide",
-      });
-    }
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "email not provide",
-      });
-    }
+    // ... (input validation code)
 
-    if (!password) {
-      return res.status(400).json({
-        success: false,
-        message: "password not provide",
-      });
-    }
-
-    if (!mobileNumber) {
-      return res.status(400).json({
-        success: false,
-        message: "mobileNumber not provide",
-      });
-    }
-    //check user already exist
-
-    const userFind = await authModel.findOne({ email: email });
-
-    if (userFind) {
-      return res.status(200).json({
-        message: "user already exists",
-        success: false,
-      });
-    }
-
-    //create user
-
+    // Create the user
     const createUser = await authModel({
       fullName,
       email,
       password: bcrypt.hashSync(password, 10),
       mobileNumber,
+      userType,
+      DateOfBirth,
+      CourtSize,
+      parentId, // Assign the parentId field
+      isActive: userType === 'child' ? true : false, // Set isActive to true for child user
+
     });
 
-    //save user
-
+    // Save the user
     const saveUser = await createUser.save();
-
     if (!saveUser) {
       return res.status(400).json({
         success: false,
-        message: "user not create",
+        message: "user not created",
       });
+    }
+
+    // If the user is a child, assign the parent's ID to the parentUser field
+    if (userType === "child") {
+      const parentUser = await authModel.findById(parentId);
+      if (!parentUser) {
+        return res.status(400).json({
+          success: false,
+          message: "Parent user not found",
+        });
+      }
+      saveUser.parentUser = parentUser._id;
+    
+      await saveUser.save();
     }
 
     return res.status(200).json({
       success: true,
-      message: "user save successfully",
+      message: "user saved successfully",
       data: saveUser,
     });
   } catch (error) {
@@ -82,6 +65,7 @@ export const userRegister = async (req, res) => {
     });
   }
 };
+
 
 //user login
 
@@ -119,6 +103,16 @@ export const userLogin = async (req, res) => {
       });
     }
 
+    const userType = user.userType;
+
+    // Apply userType validation
+    if (userType !== "parent" && userType !== "child") {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid user type",
+      });
+    }
+
     const token = jwt.sign({ user_id: user._id }, process.env.SECRET_KEY, {
       expiresIn: "1d",
     });
@@ -142,7 +136,6 @@ export const userLogin = async (req, res) => {
     });
   }
 };
-
 
 
 
@@ -197,8 +190,9 @@ export const forgetPassword = async (req, res) => {
 export const verifyOtp=async(req,res)=>{
     try {
         const {email,otp}=req.body;
- 
-      const user=await authModel.findOne({email:email});
+         console.log(otp);
+         
+      const user=await authModel.findOne({email:email}).populate("otpEmail");
 
       if(!user){
         return res.status(400).json({
@@ -207,6 +201,68 @@ export const verifyOtp=async(req,res)=>{
           });
       }
 
+      const OTP=user.otpEmail;
+
+      if(!OTP){
+        return res.status(400).json({
+          success: false,
+          message: "otp not found",
+        });
+      }
+
+     else if(OTP.otpUsed){
+        return res.status(400).json({
+          success: false,
+          message: "otp already used",
+        });
+      }
+
+      if (OTP.otpKey !== otp) {
+        console.log(OTP.otpKey);
+        return res.status(400).json({
+          success: false,
+          message: "Invalid OTP",
+        });
+      }
+      
+      //otp expire after 1h
+    const currentTime = new Date();
+    const OTPTime = OTP.createdAt;
+    const diff = currentTime.getTime() - OTPTime.getTime();
+    const minutes = Math.floor(diff / 1000 / 60);
+    if (minutes > 60) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expire",
+      });
+    }
+
+    //generate token
+
+    const token=jwt.sign({user_id:user._id},process.env.SECRET_KEY,{
+      expiresIn:"1d"
+    });
+
+    //token save
+
+    user.userToken=token;
+    await user.save();
+
+    OTP.otpUsed=true;
+    await OTP.save();
+
+    user.otpVerified=true;
+    user.otpEmail=null;
+    await user.save();
+
+    const profile={...user._doc,userToken:token};
+
+    return res.status(200).json({
+      success:true,
+      message:"OTP verified successfully",
+      data:profile
+    })
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -214,6 +270,54 @@ export const verifyOtp=async(req,res)=>{
           message: "Internal server error",
         });
       }
+
+
+}
+
+
+//reset password
+
+export const resetPassword=async(req,res)=>{
+  try {
+    const {password}=req.body;
+    const {user_id}=req.user;
+
+
+    console.log(user_id);
+    const user=await authModel.findById(user_id);
+
+    if(!user){
+      return res.status(400).json({
+        success:false,
+        message:"user not found"
+      })
+    }
+
+    const userResetPassword=await authModel.findByIdAndUpdate(user_id,{
+      password:bcrypt.hashSync(password,10)
+    },
+    {
+      new:true
+    })
+    if(!userResetPassword){
+      return res.status(400).json({
+        success:false,
+        message:"password not reset"
+      })
+    }
+
+    return res.status(200).json({
+      success:true,
+      message:"password reset successfully",
+      data:userResetPassword
+    })
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 }
 
 
@@ -293,3 +397,49 @@ async(req,res)=>{
     }
 }
 ]
+
+//invite child
+
+export const inviteChild = async (req, res) => {
+  try {
+    const { user_id } = req.user;
+    const user = await authModel.findById(user_id);
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "user not found",
+      });
+    }
+    const { link, email } = req.body;
+
+    const childUser = await authModel.findOne({ email: email });
+    if (childUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Child user already exists",
+      });
+    }
+
+    sendEmails(
+      email,
+      "Invitation link sent successfully",
+      `<h5>Your invitation link is ${link}</h5>`
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Invitation link sent successfully",
+      link: link,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+
+
+

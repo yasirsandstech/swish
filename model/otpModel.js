@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 const otpSchema = new mongoose.Schema(
   {
     auth: {
@@ -20,12 +19,10 @@ const otpSchema = new mongoose.Schema(
       index: { expires: "1h" }, // TTL index that expires after 1 hour
     },
   },
-
   {
     timestamps: true,
   }
 );
 
 const otpModel = mongoose.model("otp", otpSchema);
-
 export default otpModel;
