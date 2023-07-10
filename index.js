@@ -3,8 +3,8 @@ import bodyParser from 'body-parser';
 
 import dbConnect from './connectivity.js';
 import { authRouter } from './router/authRouter.js';
-
-
+import {goalRouter} from './router/goalRouter.js';
+import { shootingRouter } from './router/shootingRouter.js';
 const apiPrefix = process.env.API_PRIFEX;
 const port = process.env.PORT || 4000;
 
@@ -15,6 +15,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(apiPrefix,authRouter);
+app.use(apiPrefix,goalRouter);
+app.use(apiPrefix,shootingRouter);
+
 
 
 

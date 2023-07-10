@@ -18,7 +18,7 @@ export const userRegister = async (req, res) => {
     const createUser = await authModel({
       fullName,
       email,
-      password: bcrypt.hashSync(password, 10),
+      password:await bcrypt.hashSync(password, 10),
       mobileNumber,
       userType,
       DateOfBirth,
