@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 
 const goalSchema=new mongoose.Schema({
 
-
 authId:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"auth",

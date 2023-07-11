@@ -4,7 +4,11 @@ import jwt from "jsonwebtoken";
 import { handleMultiPartData } from "../utils/multiPartData.js";
 import { sendEmails } from "../utils/sendEmail.js";
 import { randomInt } from "crypto";
-import otpModel from '../model/otpModel.js'
+import otpModel from '../model/otpModel.js';
+
+
+
+
 //user register
 
 

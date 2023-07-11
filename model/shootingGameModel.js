@@ -7,6 +7,11 @@ const shootingGameSchema=new mongoose.Schema({
         ref:"auth",
         required:true
     },
+    goalId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Goal',
+        required: true,
+      },
     gameType:{
         type:String,
         enum:['Game','Practice'],
@@ -21,10 +26,14 @@ const shootingGameSchema=new mongoose.Schema({
         type: Number,
         default: 0,
       },
-      attempts: {
+    attempts: {
         type: Number,
         default: 0,
       },
+    userVoice:{
+        type:String,
+        default:""
+    }  
 
 });
 

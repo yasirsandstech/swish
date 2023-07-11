@@ -7,23 +7,26 @@ const activityAnalyticsSchema=new mongoose.Schema({
         ref:"auth",
         required: true,
       },
-      goalId: {
+      shootingId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Goal',
+        ref:"shootinggame",
         required: true,
       },
-    shortAttempted:{
-        type: Number,
-        required: true,
-    },
+    // shortAttempted:{
+    //     type: Number,
+    //     // required: true,
+    // },
     workOutTime:{
         type:Date,
-        required: true,
+        // required: true,
     },
-    FreeThrow:{
-        type: Number,
-        required: true,
-    },  
+    // FreeThrow:{
+    //     type: Number,
+    //     // required: true,
+    // },
+    userVoiceLink: {
+        type: String, // Assuming the file link is a string
+      },  
 
 
 });
