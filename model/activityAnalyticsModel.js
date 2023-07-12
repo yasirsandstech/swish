@@ -1,36 +1,21 @@
 import mongoose from "mongoose";
-
-const activityAnalyticsSchema=new mongoose.Schema({
-
-    authId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"auth",
-        required: true,
-      },
-      shootingId:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"shootinggame",
-        required: true,
-      },
-    // shortAttempted:{
-    //     type: Number,
-    //     // required: true,
-    // },
-    workOutTime:{
-        type:Date,
-        // required: true,
-    },
-    // FreeThrow:{
-    //     type: Number,
-    //     // required: true,
-    // },
-    userVoiceLink: {
-        type: String, // Assuming the file link is a string
-      },  
-
-
+const activitySchema = new mongoose.Schema({
+  authId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "auth",
+    required: true,
+  },
+  goalId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "goals",
+    required: true,
+  },
+  goalCreatedAt: {
+    type: Date,
+    required: true,
+  },
 });
 
-const activityAnalyticsModel=mongoose.model('activityAnalytics',activityAnalyticsSchema);
+const activityModel = mongoose.model("activityAnalytics", activitySchema);
 
-export default activityAnalyticsModel;
+export default activityModel;
