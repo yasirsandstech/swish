@@ -6,10 +6,10 @@ import auth from '../middleware/auth.js';
 
 
 
-goalRouter.post('/creategoal',auth,goalController.createGoals);
+goalRouter.post('/createGoal',auth,goalController.createGoals);
 
-goalRouter.get('/getgoal',auth,goalController.getGoals);
+goalRouter.get('/getAllGoal',auth,goalController.getAllGoals);
 
-goalRouter.get('/getanalytics',auth,goalController.getAnalytics);
+goalRouter.get('/getAnalytics',auth,goalController.getAnalytics);
 
 goalRouter.put('/updateGoals/:id',auth,goalController.updateGoals);

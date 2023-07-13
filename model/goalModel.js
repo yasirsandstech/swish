@@ -6,7 +6,7 @@ const goalSchema = new mongoose.Schema({
       required: true,
     },
     activityEachWeek: {
-      type: Date,
+      type: String,
       required: true,
     },
     shotEachWeek: {
@@ -26,7 +26,13 @@ const goalSchema = new mongoose.Schema({
     },
     createdAt: {
       type: Date,
-      default: Date.now,
+      default: function() {
+        const currentTime = new Date();
+        const duration = 7 * 60 * 60 * 1000; // 7 hours in milliseconds
+        const desiredTime = new Date(currentTime.getTime() - duration);
+        return desiredTime;
+      },
+      
     },
 
 

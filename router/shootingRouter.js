@@ -7,9 +7,7 @@ import auth from '../middleware/auth.js';
 
 shootingRouter.post('/playshooting',auth,shootingController.playShootingGame);
 
-// shootingRouter.get('/getshooting',auth,shootingController.getShootingGame);
 
-// shootingRouter.put('/updateshooting/:id',auth,shootingController.updateShootingGame);
 
 
 
